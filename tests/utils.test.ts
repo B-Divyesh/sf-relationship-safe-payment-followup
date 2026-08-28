@@ -44,6 +44,8 @@ describe('message drafts and imports', () => {
 
   it('rejects malformed import records and bounds cadence', () => {
     expect(normalizeInvoice({ clientName: 'Missing id' })).toBeNull();
+    expect(normalizeInvoice({ ...invoice, amount: 0 })).toBeNull();
+    expect(normalizeInvoice({ ...invoice, amount: -1 })).toBeNull();
     expect(normalizeInvoice({ ...invoice, cadenceDays: 999 })?.cadenceDays).toBe(60);
   });
 });

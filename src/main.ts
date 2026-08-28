@@ -217,7 +217,7 @@ function invoiceDialog(): string {
         <label>Client or business <span aria-hidden="true">*</span><input name="clientName" required maxlength="120" autocomplete="organization"></label>
         <label>Contact name <input name="contactName" maxlength="120" autocomplete="name"></label>
         <label>Invoice number <span aria-hidden="true">*</span><input name="invoiceNumber" required maxlength="80"></label>
-        <div class="amount-fields"><label>Amount <span aria-hidden="true">*</span><input name="amount" required type="number" inputmode="decimal" min="0" step="0.01"></label><label>Currency <span aria-hidden="true">*</span><select name="currency"><option>USD</option><option>GBP</option><option>EUR</option><option>INR</option><option>AUD</option><option>CAD</option><option>NZD</option><option>SGD</option></select></label></div>
+        <div class="amount-fields"><label>Amount <span aria-hidden="true">*</span><input name="amount" required type="number" inputmode="decimal" min="0.01" step="0.01"></label><label>Currency <span aria-hidden="true">*</span><select name="currency"><option>USD</option><option>GBP</option><option>EUR</option><option>INR</option><option>AUD</option><option>CAD</option><option>NZD</option><option>SGD</option></select></label></div>
         <label>Due date <span aria-hidden="true">*</span><input name="dueDate" required type="date"></label>
         <label>Follow up every <span aria-hidden="true">*</span><span class="input-suffix"><input name="cadenceDays" required type="number" inputmode="numeric" min="1" max="60" value="7"><span>days</span></span></label>
       </div>
@@ -333,9 +333,9 @@ async function saveInvoiceForm(form: HTMLFormElement): Promise<void> {
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
-  if (!invoice.clientName || !invoice.invoiceNumber || !invoice.dueDate || !Number.isFinite(invoice.amount)) {
+  if (!invoice.clientName || !invoice.invoiceNumber || !invoice.dueDate || !Number.isFinite(invoice.amount) || invoice.amount <= 0) {
     const error = document.querySelector('#invoice-error');
-    if (error) error.textContent = 'Add the client, invoice number, amount, and due date.';
+    if (error) error.textContent = 'Add the client, invoice number, an amount greater than zero, and due date.';
     return;
   }
   try {

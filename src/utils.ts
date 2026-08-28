@@ -66,14 +66,14 @@ export function escapeHtml(value: unknown): string {
 export function normalizeInvoice(input: unknown): Invoice | null {
   if (!input || typeof input !== 'object') return null;
   const item = input as Partial<Invoice>;
-  if (!item.id || !item.clientName || !item.invoiceNumber || !item.dueDate) return null;
+  if (!item.id || !item.clientName || !item.invoiceNumber || !item.dueDate || !Number.isFinite(Number(item.amount)) || Number(item.amount) <= 0) return null;
   const now = new Date().toISOString();
   return {
     id: String(item.id),
     clientName: String(item.clientName).slice(0, 120),
     contactName: String(item.contactName ?? '').slice(0, 120),
     invoiceNumber: String(item.invoiceNumber).slice(0, 80),
-    amount: Number.isFinite(Number(item.amount)) ? Math.max(0, Number(item.amount)) : 0,
+    amount: Number(item.amount),
     currency: /^[A-Z]{3}$/.test(String(item.currency)) ? String(item.currency) : 'USD',
     dueDate: /^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDate)) ? String(item.dueDate) : localDate(),
     preference: item.preference === 'whatsapp' ? 'whatsapp' : 'email',
