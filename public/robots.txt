@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://relationship-safe-payment-followup.sociobot.in/sitemap.xml
