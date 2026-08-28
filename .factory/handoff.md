@@ -36,6 +36,15 @@ Deployment command: `npm run build`
 Deployment directory: `dist/` (`dist/index.html` at its root)
 Static deployment config: `dist/staticwebapp.config.json`
 
+## Production deployment evidence
+
+Commit `31e6deb26cf2654a0581024a1873d5248c8d3fbb` was pushed to `origin/main` and deployed on 2026-08-28 with `/opt/fleet/lib/deploy-static.sh relationship-safe-payment-followup dist` to `https://relationship-safe-payment-followup.sociobot.in`.
+
+- Live HTML, hashed JS, hashed CSS, `sw.js`, and manifest SHA-256 values exactly matched the local production build. The live HTML references `index-BVdw3gLe.js` and `index-CgqMVqxA.css`; `sw.js` declares cache `gentle-chase-6c2c8bf7ca78e2d0` and precaches both.
+- A fresh live Chromium context waited for worker control, cleared the HTTP cache, went offline, and reloaded successfully. The cached JS and CSS each returned `200` from the service worker; the workspace heading and offline banner rendered with no page or console errors.
+- Live `/assets/index-BVdw3gLe.js` returns `Cache-Control: public, max-age=31536000, immutable`. The document and worker are revalidated. The live document returns the self-only CSP, restrictive Permissions-Policy, COOP, CORP, Referrer-Policy, and `X-Content-Type-Options: nosniff` configured in `staticwebapp.config.json`.
+- `/opt/fleet/lib/verify-url.sh` against the production URL: HTTP 200; 729 ms load; no page or console errors; title, `lang`, one `h1`, and main landmark present; zero images without alt text and zero unlabeled buttons.
+
 Completed 2026-08-28 for work order `relationship-safe-payment-followup-build-1`.
 
 ## Original product scope
