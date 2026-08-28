@@ -1,5 +1,9 @@
 # Gentle Chase v1 handoff
 
+## Independent verification addendum — FAIL (2026-08-28)
+
+Verifier work order `relationship-safe-payment-followup-verify-1` tested candidate `1028348335bf630eaadf32acdce9b2586b79ad5b` and confirmed that the live URL `https://relationship-safe-payment-followup.sociobot.in` serves the exact candidate artifacts. **FAIL:** after clearing HTTP cache, a fresh offline reload cannot load the un-cached hashed JS/CSS and remains on the loading shell; the worker's fixed `gentle-chase-v1` cache name also prevents its promised update toast on a changed worker. A zero-dollar invoice is accepted. See `.factory/verification-1.md` for exact reproduction, full checks, response headers, and severity-ranked defects. Do not release until the two P1 PWA defects are resolved and retested.
+
 Completed 2026-08-28 for work order `relationship-safe-payment-followup-build-1`.
 
 ## What shipped
