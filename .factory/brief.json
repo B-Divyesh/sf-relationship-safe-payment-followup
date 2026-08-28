@@ -1,0 +1,23 @@
+{
+  "slug": "relationship-safe-payment-followup",
+  "title": "Gentle Chase",
+  "territory": "utilities",
+  "user": "A freelancer or family business owner who wants consistent, relationship-aware follow-up for overdue invoices without handing customer data to an automated debt-collection service.",
+  "evidence": [
+    {
+      "url": "https://hn.algolia.com/api/v1/items/47638685",
+      "date": "2026-04-04",
+      "quote_or_summary": "A founder says overdue chasing is manual and awkward; small businesses either rely on QuickBooks/Xero reminders, send WhatsApp manually, or let it slide to protect the relationship."
+    },
+    {
+      "url": "https://github.com/invoiceninja/invoiceninja/issues/12204",
+      "date": "2026-08-23",
+      "quote_or_summary": "A user requests customer treatment conditional on having no unpaid recurring invoices, showing that payment status needs to feed deliberate client communication and policy."
+    }
+  ],
+  "smallest_useful_product": "A local PWA with invoice amount/due date, contact preference, follow-up cadence, notes, and editable email/WhatsApp copy buttons; it never sends messages itself.",
+  "success_measure": "After 60 days, pilot users record a follow-up for 85% of invoices overdue by seven days and report fewer than 10% of follow-ups were missed because they forgot.",
+  "artifact_class": "pwa-offline",
+  "monetization": "one-time",
+  "constraints": "No automatic contact or harassment features; provide jurisdiction-neutral templates only; store client notes locally and offer export/delete."
+}
