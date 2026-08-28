@@ -59,10 +59,21 @@ test('boots from the complete precached shell on a first cold offline reload', a
 
   const cdp = await context.newCDPSession(page);
   await cdp.send('Network.clearBrowserCache');
+  const offlineAssets: Array<{ path: string; status: number; fromServiceWorker: boolean }> = [];
+  page.on('response', (response) => {
+    const path = new URL(response.url()).pathname;
+    if (/^\/assets\/index-.*\.(?:js|css)$/.test(path)) {
+      offlineAssets.push({ path, status: response.status(), fromServiceWorker: response.fromServiceWorker() });
+    }
+  });
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: /Keep the invoice moving/ })).toBeVisible();
   await expect(page.getByText(/Offline — changes stay on this device/)).toBeVisible();
+  expect(offlineAssets).toEqual(expect.arrayContaining([
+    expect.objectContaining({ path: expect.stringMatching(/^\/assets\/index-.*\.js$/), status: 200, fromServiceWorker: true }),
+    expect.objectContaining({ path: expect.stringMatching(/^\/assets\/index-.*\.css$/), status: 200, fromServiceWorker: true }),
+  ]));
 });
 
 test('announces a newly installed service worker and uses its new cache version', async ({ page }, testInfo) => {
@@ -103,6 +114,20 @@ test('rejects a zero-dollar invoice before it can become an active route', async
   await expect(page.locator('#invoice-dialog')).toHaveAttribute('open', '');
   expect(await amount.evaluate((input) => (input as HTMLInputElement).validity.rangeUnderflow)).toBe(true);
   await expect(page.getByRole('heading', { level: 1, name: 'Your follow-up routes' })).toHaveCount(0);
+});
+
+test('keeps the skip link and invoice dialog keyboard-operable', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main')).toBeFocused();
+
+  await page.getByRole('button', { name: 'Add your first invoice' }).click();
+  await expect(page.getByLabel('Client or business *')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#invoice-dialog')).not.toHaveAttribute('open', '');
+  await expect(page.getByRole('button', { name: 'Add your first invoice' })).toBeFocused();
 });
 
 test('legal routes and empty state are accessible', async ({ page }) => {

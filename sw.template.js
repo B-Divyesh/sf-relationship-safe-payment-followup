@@ -49,12 +49,16 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
+    // `cache.addAll()` records the precache with simple path requests, while
+    // module and stylesheet fetches carry browser-specific request metadata.
+    // Match by the same-origin path (and intentionally ignore a cache-busting
+    // query) so a first offline reload can always resolve the built shell.
+    const cache = await caches.open(VERSION);
+    const cached = await cache.match(url.pathname, { ignoreSearch: true });
     if (cached) return cached;
     try {
       const response = await fetch(event.request);
       if (response.ok) {
-        const cache = await caches.open(VERSION);
         await cache.put(event.request, response.clone());
       }
       return response;

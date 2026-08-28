@@ -69,7 +69,7 @@ function statusBanner(): string {
 
 function emptyView(): string {
   return `${header()}${statusBanner()}
-  <main id="main">
+  <main id="main" tabindex="-1">
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span>01</span> A private follow-up map</p>
@@ -184,7 +184,7 @@ function workspace(): string {
   if (chosen && chosen.id !== selectedId) selectedId = chosen.id;
 
   return `${header()}${statusBanner()}
-    <main id="main" class="workspace">
+    <main id="main" class="workspace" tabindex="-1">
       <section class="workspace-header">
         <div><p class="eyebrow"><span>FIELD SHEET</span> ${formatDate(today())}</p><h1>Your follow-up routes</h1><p>${dueCount ? `${dueCount} ${dueCount === 1 ? 'invoice needs' : 'invoices need'} a decision today.` : 'No follow-ups are due today.'} You stay in control of every message.</p></div>
         <button class="primary-button" data-action="add">${icon('plus')} Add invoice</button>
@@ -259,7 +259,7 @@ function legalView(kind: 'privacy' | 'terms'): string {
     <h2>One-time license</h2><p>Gentle Chase Plus is a $19 one-time purchase for the features described at checkout. Sociobot/Dodo is the merchant of record and handles payment and refunds. A refund revokes the associated license. License availability requires occasional verification, with the last valid result usable offline.</p>
     <h2>No warranty</h2><p>The software is provided “as is,” without warranties. You should keep your own exports. We are not liable for missed reminders, lost browser storage, payment disputes, or decisions made from a draft.</p>
     <h2>Fair use</h2><p>You may use Gentle Chase for lawful business follow-up. You may not bypass license controls or use the product for automated contact, debtor scoring, harassment, or legal notices.</p>`;
-  return `${header()}${statusBanner()}<main id="main" class="legal"><a href="/" class="back-link" data-route>← Back to workspace</a><article>${kind === 'privacy' ? privacy : terms}</article></main>${footer()}${settingsDialog()}`;
+  return `${header()}${statusBanner()}<main id="main" class="legal" tabindex="-1"><a href="/" class="back-link" data-route>← Back to workspace</a><article>${kind === 'privacy' ? privacy : terms}</article></main>${footer()}${settingsDialog()}`;
 }
 
 function render(): void {
@@ -269,7 +269,7 @@ function render(): void {
     app.innerHTML = legalView(path.slice(1) as 'privacy' | 'terms');
   } else if (storageError) {
     document.title = 'Storage unavailable — Gentle Chase';
-    app.innerHTML = `${header()}<main id="main" class="error-state"><p class="eyebrow">Storage check</p><h1>Your private workspace could not open.</h1><p>${escapeHtml(storageError)}</p><p>Close other Gentle Chase tabs, allow site storage, then try again. No data was sent anywhere.</p><button class="primary-button" data-action="retry">Try again</button></main>${footer()}${settingsDialog()}`;
+    app.innerHTML = `${header()}<main id="main" class="error-state" tabindex="-1"><p class="eyebrow">Storage check</p><h1>Your private workspace could not open.</h1><p>${escapeHtml(storageError)}</p><p>Close other Gentle Chase tabs, allow site storage, then try again. No data was sent anywhere.</p><button class="primary-button" data-action="retry">Try again</button></main>${footer()}${settingsDialog()}`;
   } else {
     document.title = 'Gentle Chase — thoughtful invoice follow-up';
     app.innerHTML = invoices.length ? workspace() : emptyView();
