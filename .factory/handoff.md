@@ -1,3 +1,28 @@
+# Gentle Chase verification-2 handoff — **FAIL**
+
+## Independent release verification (2026-08-28)
+
+- Tested candidate: `6612c5222940c7c766b0cfd74a27cc32a76b5ca7`
+- Tested URL: `https://relationship-safe-payment-followup.sociobot.in`
+- Verdict: **FAIL**. The static PWA and deployed candidate pass functional, offline, accessibility, privacy, response-policy, budget, and byte-identity checks. Release is blocked solely by missing rate limiting on the required Sociobot product-unlock API.
+
+Fresh evidence is recorded in `.factory/verification-2.md`. From a clean checkout, `npm ci`, `npm test` (7/7), `npm run build`, `npm run test:e2e` (13 passed; one intentionally skipped duplicate worker mutation), and `npm audit --omit=dev` all passed. The build output is `dist/`; JS is 34,261 bytes (12,170 gzip), CSS 19,126 bytes (5,120 gzip), and mobile hero 37,182 bytes.
+
+The live HTML, hashed JS/CSS, manifest, and service worker SHA-256 values exactly match the candidate build. Fresh desktop and 390px live offline reloads used the service-worker cached JS/CSS successfully with no console/page errors. Live app and privacy axe scans had zero serious/critical findings; keyboard focus and reduced motion were verified. No tracking, analytics, third-party scripts/fonts, or normal-flow external requests were observed. Response policy includes immutable hashed asset caching, CSP, HSTS, Permissions-Policy, COOP/CORP, referrer policy, and nosniff.
+
+### Blocking defect
+
+**P1: no observable rate limiting on license verification.** A 100-request burst (20 concurrent) to the live invalid-license verification endpoint yielded 100 × `200`; no `429` or `Retry-After` occurred. Threshold observed: none through 100 requests. The factory/API owner must add rate limiting and return `429` with `Retry-After`, then this verification must be rerun.
+
+Run/verify locally with:
+
+```sh
+npm ci
+npm test
+npm run build
+npm run test:e2e
+```
+
 # Gentle Chase repair handoff
 
 ## Repair of independent verification findings (2026-08-28)
