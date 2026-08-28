@@ -193,6 +193,7 @@ fieldset { margin: 18px 0; padding: 0; border: 0; }
 .button-row { display: flex; flex-wrap: wrap; gap: 9px; }
 .file-button { cursor: pointer; }
 .file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.file-button:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; box-shadow: 0 0 0 6px var(--paper); }
 .license-section { background: #eef2eb; margin: 0 -28px; padding: 24px 28px!important; }
 .license-section .primary-button { width: fit-content; }
 .license-section form { margin-top: 20px; }
