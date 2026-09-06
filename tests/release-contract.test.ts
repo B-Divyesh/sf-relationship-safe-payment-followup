@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 
 interface StaticWebAppConfig {
   globalHeaders: Record<string, string>;
-  routes: Array<{ route: string; headers: Record<string, string> }>;
+  responseOverrides: Record<string, { rewrite: string }>;
+  routes: Array<{ route: string; rewrite?: string; headers?: Record<string, string> }>;
 }
 
 describe('static deployment response policy', () => {
@@ -14,7 +15,11 @@ describe('static deployment response policy', () => {
     const headers = config.globalHeaders;
     const assetRoute = config.routes.find((route) => route.route === '/assets/*');
 
-    expect(assetRoute?.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
+    expect(assetRoute?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
+    expect(config.responseOverrides['404']?.rewrite).toBe('/404.html');
+    for (const path of ['/demo', '/privacy', '/terms']) {
+      expect(config.routes.find((route) => route.route === path)?.rewrite).toBe('/index.html');
+    }
     expect(headers['Content-Security-Policy']).toContain("default-src 'self'");
     expect(headers['Content-Security-Policy']).toContain("frame-ancestors 'none'");
     expect(headers['Permissions-Policy']).toContain('camera=()');
