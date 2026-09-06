@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Invoice } from '../src/types';
-import { daysBetween, draftFor, needsAttention, nextFollowUp, normalizeInvoice } from '../src/utils';
+import { daysBetween, draftFor, isCalendarDate, isTimestamp, needsAttention, nextFollowUp, normalizeInvoice } from '../src/utils';
 
 const invoice: Invoice = {
   id: 'invoice-1', clientName: 'Northwind Studio', contactName: 'Maya', invoiceNumber: 'NW-104',
@@ -47,5 +47,20 @@ describe('message drafts and imports', () => {
     expect(normalizeInvoice({ ...invoice, amount: 0 })).toBeNull();
     expect(normalizeInvoice({ ...invoice, amount: -1 })).toBeNull();
     expect(normalizeInvoice({ ...invoice, cadenceDays: 999 })?.cadenceDays).toBe(60);
+  });
+
+  it('rejects impossible calendar dates and timestamps before they enter storage', () => {
+    expect(isCalendarDate('2028-02-29')).toBe(true);
+    expect(isCalendarDate('2026-02-29')).toBe(false);
+    expect(isCalendarDate('2026-99-99')).toBe(false);
+    expect(isTimestamp('2026-08-28T09:15:00.000Z')).toBe(true);
+    expect(isTimestamp('2026-02-30T09:15:00.000Z')).toBe(false);
+    expect(isTimestamp('2026-08-28T25:15:00.000Z')).toBe(false);
+    expect(normalizeInvoice({ ...invoice, dueDate: '2026-99-99' })).toBeNull();
+    expect(normalizeInvoice({ ...invoice, updatedAt: '2026-99-99T09:15:00.000Z' })).toBeNull();
+    expect(normalizeInvoice({
+      ...invoice,
+      history: [{ id: 'bad-history', at: '2026-02-30T09:15:00.000Z', channel: 'email', message: 'Hello' }],
+    })).toBeNull();
   });
 });

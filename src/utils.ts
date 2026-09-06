@@ -2,6 +2,22 @@ import type { ContactPreference, Invoice } from './types';
 
 export const DAY = 86_400_000;
 
+export function isCalendarDate(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+export function isTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const parts = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|[+-](\d{2}):(\d{2}))$/.exec(value);
+  if (!parts || !isCalendarDate(parts[1])) return false;
+  const [, , hours, minutes, seconds, , zone, offsetHours = '0', offsetMinutes = '0'] = parts;
+  if (Number(hours) > 23 || Number(minutes) > 59 || Number(seconds) > 59) return false;
+  if (zone !== 'Z' && (Number(offsetHours) > 14 || Number(offsetMinutes) > 59)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
 export function localDate(date = new Date()): string {
   const offset = date.getTimezoneOffset() * 60_000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
@@ -40,9 +56,11 @@ export function formatMoney(amount: number, currency: string): string {
 }
 
 export function formatDate(value: string): string {
+  const dateValue = value.includes('T') ? value.slice(0, 10) : value;
+  if (!isCalendarDate(dateValue)) return 'Invalid date';
   return new Intl.DateTimeFormat(undefined, {
     day: 'numeric', month: 'short', year: 'numeric',
-  }).format(dateAtNoon(value));
+  }).format(dateAtNoon(dateValue));
 }
 
 export function draftFor(invoice: Invoice, channel: ContactPreference): string {
@@ -66,8 +84,24 @@ export function escapeHtml(value: unknown): string {
 export function normalizeInvoice(input: unknown): Invoice | null {
   if (!input || typeof input !== 'object') return null;
   const item = input as Partial<Invoice>;
-  if (!item.id || !item.clientName || !item.invoiceNumber || !item.dueDate || !Number.isFinite(Number(item.amount)) || Number(item.amount) <= 0) return null;
+  if (!String(item.id ?? '').trim() || !String(item.clientName ?? '').trim() || !String(item.invoiceNumber ?? '').trim()
+    || !isCalendarDate(item.dueDate) || !Number.isFinite(Number(item.amount)) || Number(item.amount) <= 0) return null;
   const now = new Date().toISOString();
+  const createdAt = item.createdAt === undefined ? now : isTimestamp(item.createdAt) ? item.createdAt : null;
+  const updatedAt = item.updatedAt === undefined ? now : isTimestamp(item.updatedAt) ? item.updatedAt : null;
+  if (!createdAt || !updatedAt) return null;
+  const historyInput = item.history ?? [];
+  if (!Array.isArray(historyInput)) return null;
+  const history = historyInput.slice(-100).map((entry) => {
+    if (!entry || typeof entry !== 'object' || !isTimestamp(entry.at)) return null;
+    return {
+      id: String(entry.id ?? crypto.randomUUID()),
+      at: entry.at,
+      channel: entry.channel === 'whatsapp' ? 'whatsapp' as const : 'email' as const,
+      message: String(entry.message ?? '').slice(0, 5000),
+    };
+  });
+  if (history.some((entry) => entry === null)) return null;
   return {
     id: String(item.id),
     clientName: String(item.clientName).slice(0, 120),
@@ -75,7 +109,7 @@ export function normalizeInvoice(input: unknown): Invoice | null {
     invoiceNumber: String(item.invoiceNumber).slice(0, 80),
     amount: Number(item.amount),
     currency: /^[A-Z]{3}$/.test(String(item.currency)) ? String(item.currency) : 'USD',
-    dueDate: /^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDate)) ? String(item.dueDate) : localDate(),
+    dueDate: item.dueDate,
     preference: item.preference === 'whatsapp' ? 'whatsapp' : 'email',
     email: String(item.email ?? '').slice(0, 254),
     whatsapp: String(item.whatsapp ?? '').slice(0, 40),
@@ -84,13 +118,8 @@ export function normalizeInvoice(input: unknown): Invoice | null {
     status: item.status === 'paid' ? 'paid' : 'open',
     draftEmail: item.draftEmail ? String(item.draftEmail).slice(0, 5000) : undefined,
     draftWhatsApp: item.draftWhatsApp ? String(item.draftWhatsApp).slice(0, 5000) : undefined,
-    history: Array.isArray(item.history) ? item.history.filter(Boolean).slice(-100).map((entry) => ({
-      id: String(entry.id ?? crypto.randomUUID()),
-      at: String(entry.at ?? now),
-      channel: entry.channel === 'whatsapp' ? 'whatsapp' : 'email',
-      message: String(entry.message ?? '').slice(0, 5000),
-    })) : [],
-    createdAt: String(item.createdAt ?? now),
-    updatedAt: String(item.updatedAt ?? now),
+    history: history as Invoice['history'],
+    createdAt,
+    updatedAt,
   };
 }

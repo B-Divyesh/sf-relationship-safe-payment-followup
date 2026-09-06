@@ -1,0 +1,51 @@
+[
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit",
+    "where": "landing page and README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload --project=chromium",
+    "sandbox": "fresh browser context at /demo; wait for service-worker control; clear HTTP cache; go offline; reload; assert sample data and built JS/CSS load from the worker"
+  },
+  {
+    "id": "demo-sandbox",
+    "claim": "The sample demo never changes real invoice records",
+    "where": "landing page, demo banner, and README",
+    "test": "npm run test:e2e -- --grep @claim:demo-sandbox --project=chromium",
+    "sandbox": "create a real invoice; enter /demo; reset sample data; leave demo; assert the real invoice remains and sample invoices do not enter real storage"
+  },
+  {
+    "id": "local-data",
+    "claim": "Invoice data stays in this browser during normal use",
+    "where": "landing page, settings, privacy page, and README",
+    "test": "npm run test:e2e -- --grep @claim:local-data --project=chromium",
+    "sandbox": "fresh browser context; create and reload an invoice; record all requests; assert persistence and same-origin requests only"
+  },
+  {
+    "id": "manual-drafts",
+    "claim": "Drafts are editable and Gentle Chase never sends a message",
+    "where": "landing page, invoice detail, terms, and README",
+    "test": "npm run test:e2e -- --grep @claim:manual-drafts --project=chromium",
+    "sandbox": "sample email invoice; edit and copy the draft; log it; assert the history changes and no external request occurs"
+  },
+  {
+    "id": "data-export",
+    "claim": "Exports complete invoice records as JSON or CSV",
+    "where": "settings, privacy page, and README",
+    "test": "npm run test:e2e -- --grep @claim:data-export --project=chromium",
+    "sandbox": "sample demo; download both formats; parse JSON and assert three records; assert CSV header and one row per record"
+  },
+  {
+    "id": "free-limit",
+    "claim": "The free version supports five active invoices",
+    "where": "landing page, workspace, settings, and README",
+    "test": "npm run test:e2e -- --grep @claim:free-limit --project=chromium",
+    "sandbox": "fresh browser context; create five active invoices; attempt a sixth; assert the license panel opens and only five are stored"
+  },
+  {
+    "id": "plus-limit",
+    "claim": "A verified Gentle Chase Plus license removes the five-invoice limit",
+    "where": "landing page, settings, terms, and README",
+    "test": "npm run test:e2e -- --grep @claim:plus-limit --project=chromium",
+    "sandbox": "five stored invoices; recorded valid Sociobot verification fixture; restore token; create and persist a sixth invoice"
+  }
+]

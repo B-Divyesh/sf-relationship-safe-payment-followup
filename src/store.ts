@@ -1,13 +1,19 @@
 import type { ExportBundle, Invoice } from './types';
 import { normalizeInvoice } from './utils';
 
-const DB_NAME = 'gentle-chase';
+const REAL_DB_NAME = 'gentle-chase';
+const DEMO_DB_NAME = 'gentle-chase-demo';
 const STORE = 'invoices';
 const DB_VERSION = 1;
+let databaseName = REAL_DB_NAME;
+
+export function setDemoStorage(enabled: boolean): void {
+  databaseName = enabled ? DEMO_DB_NAME : REAL_DB_NAME;
+}
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(databaseName, DB_VERSION);
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE)) {
         request.result.createObjectStore(STORE, { keyPath: 'id' });
@@ -26,11 +32,37 @@ function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
-export async function getInvoices(): Promise<Invoice[]> {
+export async function loadInvoices(): Promise<{ invoices: Invoice[]; skipped: number }> {
   const db = await openDatabase();
   try {
     const items = await requestResult(db.transaction(STORE, 'readonly').objectStore(STORE).getAll());
-    return (items as unknown[]).map(normalizeInvoice).filter((item): item is Invoice => Boolean(item));
+    const normalized = (items as unknown[]).map(normalizeInvoice);
+    return {
+      invoices: normalized.filter((item): item is Invoice => Boolean(item)),
+      skipped: normalized.filter((item) => !item).length,
+    };
+  } finally {
+    db.close();
+  }
+}
+
+export async function getInvoices(): Promise<Invoice[]> {
+  return (await loadInvoices()).invoices;
+}
+
+export async function removeInvalidInvoices(): Promise<number> {
+  const db = await openDatabase();
+  try {
+    const items = await requestResult(db.transaction(STORE, 'readonly').objectStore(STORE).getAll());
+    const invalidKeys = (items as Array<Record<string, unknown>>)
+      .filter((item) => !normalizeInvoice(item))
+      .map((item) => item.id as IDBValidKey)
+      .filter((key) => key !== undefined);
+    if (!invalidKeys.length) return 0;
+    const transaction = db.transaction(STORE, 'readwrite');
+    const store = transaction.objectStore(STORE);
+    await Promise.all(invalidKeys.map((key) => requestResult(store.delete(key))));
+    return invalidKeys.length;
   } finally {
     db.close();
   }

@@ -4,10 +4,10 @@ import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 
 const STATIC_SHELL = [
-  '/', '/index.html', '/offline.html', '/manifest.webmanifest', '/robots.txt',
+  '/', '/index.html', '/404.html', '/offline.html', '/fallback.css', '/manifest.webmanifest', '/robots.txt',
   '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-512.png', '/assets/hero-topography-768.webp',
-  '/assets/hero-topography.webp', '/assets/hero-topography.jpg',
+  '/assets/hero-topography.webp', '/assets/hero-topography.jpg', '/assets/social-preview.jpg',
 ];
 
 /**

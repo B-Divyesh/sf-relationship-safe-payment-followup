@@ -30,8 +30,9 @@ Independent invoices are “map rows” separated by rules, not generic cards. T
 
 ## Interaction grammar
 
-- “Add invoice” plants a new route marker and opens a focused sheet.
-- Selecting an invoice moves the detail sheet in from the row’s direction.
+- Interface copy uses plain invoice terms. The cartographic idea remains visual and is not used as an instruction metaphor.
+- “Add invoice” opens a focused sheet.
+- Selecting an invoice moves its detail sheet in from the row’s direction.
 - The primary cue is always “Review draft”; the product never labels anything “send” because it cannot and must not contact a client.
 - Copy actions become “Copied — paste into …” and logging a follow-up advances the next checkpoint. Users can undo the log for eight seconds.
 - Destructive actions name the client/invoice and require confirmation.
@@ -48,6 +49,8 @@ Changes use 180–240ms ease-out transitions on opacity and transform only. Deta
 Use case: stylized-concept. A tactile, overhead editorial still life in which an ivory paper topographic map, a dark green pencil, and three coral route pins imply a gentle planned path. No people, screens, currency, invoices, brands, writing, logos, or watermarks. The object cluster stays on the right with quiet paper on the left for copy. Soft north-window light; warm parchment, sage contour ink, deep survey green, trail coral; natural paper fibers; restrained premium editorial realism; no gradients, glossy 3D, dramatic shadows, fake text, hands, or clutter.
 
 Generated on 2026-08-28 with the factory `factory-image` deployment through `/opt/fleet/lib/gen-image.sh`. The output is original to this product and disclosed in the footer. Source PNG and prompt sidecar live in `assets/src/`; the reviewed, cropped WebP ships in `public/assets/`. Hand-authored contour and pin SVG assets are MIT-licensed with the application.
+
+The 1200×630 social preview added on 2026-09-06 is a center crop of the same original generated hero. The 180px Apple touch icon is resized from the product’s hand-authored icon artwork.
 
 ## Responsive intent
 
