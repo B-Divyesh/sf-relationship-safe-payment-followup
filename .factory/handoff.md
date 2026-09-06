@@ -1,4 +1,26 @@
-# Gentle Chase repair-3 handoff
+# Gentle Chase verification-4 handoff
+
+Independent verification completed on 2026-09-06 for `relationship-safe-payment-followup-verify-4`.
+
+- Verdict: **FAIL**
+- Findings: **2**
+- Untested claims: **0**
+- Implementation reviewed: `cf7504011166c0b283236794132d23c6f8a831e9`
+- Documentation baseline: `bf94e11bdab4fe38e2bafe89a1fa46a0478957e1`
+- Full report: `.factory/verification-4.md`
+
+All seven declared claim commands pass from a fresh clone. The full suite passes with 8/8 unit tests and 30 Playwright checks (2 intentional project skips). Live desktop and phone flows, demo isolation/reset, invalid-date recovery, keyboard/focus, reduced motion, 44px targets, legal/404 routes, privacy request capture, cold offline reload, caching, headers, and artifact hashes pass. Live Lighthouse scored 100/100/100/100.
+
+Release remains blocked by two findings:
+
+1. **P1:** the advertised **Buy once — $19** checkout still returns HTTP 404 from Sociobot, so a real purchase and paid return/restore cannot complete.
+2. **P3:** axe-core reports `landmark-complementary-is-top-level` on the populated workspace because `aside.limit-note` is nested inside the invoice queue landmark.
+
+The earlier cold-offline, worker-update, zero-amount, cache/header, rate-limit, impossible-date, and mobile-target findings are fixed and independently rechecked. The verification endpoint returned 429 on request 31 with `Retry-After: 3`.
+
+Evidence is under `/work/.evidence/`, including `verification4-live-probe.json`, first-screen captures, URL verifier output, and `verification4-lighthouse.json`. The prior handoff's `/work/.evidence/billing-offer.json` was not present in this fresh verifier container.
+
+## Prior repair-3 handoff
 
 Repair work completed on 2026-09-06 for `relationship-safe-payment-followup-repair-3`.
 
